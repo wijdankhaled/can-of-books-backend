@@ -108,7 +108,22 @@ if(error){
 }
     })
 });
-
+//update
+addEventListener.put('/updateBook/:index',(req,res)=>{
+    let index=Number(req.params.index);
+    let {name,description,status,userEmail}=req.body;
+    userModel.find({email:email},(reror,userData)=>{
+        if(error){
+            res.send('error ')
+        }else{
+            userData[0].books[index].name=name;
+            userData[0].books[index].description=description;
+            userData[0].books[index].status=status;
+            userData[0].save();
+            res.send(userData[0].books);
+        }
+    })
+})
 
 app.listen(PORT, () => {
     console.log(`Listening on PORT ${PORT}`)
