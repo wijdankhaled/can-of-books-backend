@@ -15,7 +15,8 @@ mongoose.connect('mongodb://localhost:27017/books', { useNewUrlParser: true, use
 const booksSchema = new mongoose.Schema({
     name: String,
     description:String,
-    status:String
+    status:String,
+    img:String
 });
 
 const UserSchema = new mongoose.Schema({
@@ -36,9 +37,13 @@ const userModel = mongoose.model('owner', UserSchema);
     
 
   
-    wijdan.save();
-
-    
+    // wijdan.save();
+    const wijdan2 = new userModel({email: 'wijdankhaled178@gmail.com',
+    books: [
+       { name: 'The Growth Mindset', description: 'Dweck coined the terms fixed mindset and growth mindset to describe the underlying beliefs people have about learning and intelligence. When students believe they can get smarter, they understand that effort makes them stronger. Therefore they put in extra time and effort, and that leads to higher achievement.', status: 'FAVORITE FIVE', img: 'https://m.media-amazon.com/images/I/61bDwfLudLL._AC_UL640_QL65_.jpg' },
+       { name: 'The Momnt of Lift', description: 'Melinda Gates shares her how her exposure to the poor around the world has established the objectives of her foundation.', status: 'RECOMMENDED TO ME', img: 'https://m.media-amazon.com/images/I/71LESEKiazL._AC_UY436_QL65_.jpg'}
+     ]})
+// wijdan2.save();
 
 
 
@@ -64,6 +69,45 @@ function getBook(req,res) {
 
     })
 }
+
+//post
+app.post('/addBook',(req,res)=>{
+    let {name,description,status,userEmail}=req.body;
+    userModel.find({email:userEmail},(error,userData)=>{
+        if(error){
+            res.send('some thing wet wrong')
+        }
+        else{
+            userData[0].books.push({
+                name:name,
+                description:description,
+                status:status
+            })
+            userData[0].save();
+            res.send(userData[0].books);
+        }
+    })
+})
+
+//delete
+app.delete('/deleteBook',(req,res)=>{
+    let userEmail=req.query.email;
+    const index=Number(req.query.index);
+    userModel.find({email:userEmail},(error,userData)=>{
+if(error){
+    res.send('something went error');
+}else{
+    let newBooksArray=userData[0].books.filter((book,idx)=>{
+        if(idx!= index){
+            return book;
+        }
+    })
+    userData[0].books=newBooksArray;
+    userData[0].save();
+    res.send(userData[0].books);
+}
+    })
+});
 
 
 app.listen(PORT, () => {
